@@ -30,16 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// NOVO: Testar conexão com backend
+// CORRIGIDO: Testar conexão com backend usando /health
 async function testarConexao() {
     try {
         console.log('🔍 Testando conexão com backend...');
-        const response = await fetch(`${API_BASE_URL}/health`', {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
+        const response = await fetch(`${API_BASE_URL}/health`);
         
         if (response.ok) {
             const data = await response.json();
@@ -156,10 +151,10 @@ Possíveis causas:
 4. CORS não configurado corretamente
 
 🔧 Soluções:
-• Verifique sua conexão com internet
-• Aguarde alguns minutos e tente novamente
-• Abra o Console (F12) para ver detalhes
-• Entre em contato com o administrador do sistema
+- Verifique sua conexão com internet
+- Aguarde alguns minutos e tente novamente
+- Abra o Console (F12) para ver detalhes
+- Entre em contato com o administrador do sistema
 
 Detalhes técnicos: ${error.message}
             `;
