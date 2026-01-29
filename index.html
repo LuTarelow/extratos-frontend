@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Extratos Financeiros</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <div class="logo-text">
+                    <span class="logo-main">Extratos</span>
+                    <span class="logo-sub">Corporate Banking</span>
+                </div>
+            </div>
+            <div class="header-info">
+                <span class="version">v1.1</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Upload Section -->
+        <section class="card upload-card">
+            <div class="card-header">
+                <h2 class="card-title">📤 Upload dos Extratos</h2>
+                <p class="card-subtitle">Compare dois períodos de extratos financeiros</p>
+            </div>
+            
+            <div class="card-body">
+                <div class="upload-grid">
+                    <!-- Extrato A -->
+                    <div class="upload-box">
+                        <label class="upload-label">Extrato A (Referência)</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="arquivo-a" accept=".xlsx,.xls" required>
+                            <div class="file-input-display">
+                                <span class="file-icon">📁</span>
+                                <span class="file-text">Selecione o arquivo Excel</span>
+                            </div>
+                        </div>
+                        <input type="text" id="label-a" class="period-input" placeholder="YYYYMM (ex: 202601)" maxlength="6" required>
+                    </div>
+
+                    <!-- Seta -->
+                    <div class="arrow-separator">
+                        <span class="arrow">→</span>
+                        <span class="vs-text">VS</span>
+                    </div>
+
+                    <!-- Extrato B -->
+                    <div class="upload-box">
+                        <label class="upload-label">Extrato B (Comparação)</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="arquivo-b" accept=".xlsx,.xls" required>
+                            <div class="file-input-display">
+                                <span class="file-icon">📁</span>
+                                <span class="file-text">Selecione o arquivo Excel</span>
+                            </div>
+                        </div>
+                        <input type="text" id="label-b" class="period-input" placeholder="YYYYMM (ex: 202512)" maxlength="6" required>
+                    </div>
+                </div>
+
+                <!-- Hipóteses -->
+                <div class="hipoteses-box">
+                    <label class="upload-label">💡 Hipóteses e Contexto (Opcional)</label>
+                    <textarea id="hipoteses" rows="3" placeholder="Ex: Esperamos crescimento devido à campanha comercial em janeiro..."></textarea>
+                </div>
+
+                <!-- Botão Processar -->
+                <button id="btn-processar" class="btn-primary">
+                    <span class="btn-icon">🚀</span>
+                    <span class="btn-text">Processar Extratos</span>
+                </button>
+
+                <!-- Loading -->
+                <div id="loading" class="loading" style="display:none;">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Processando extratos... Aguarde.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Report Section -->
+        <section id="report-section" class="card report-card" style="display:none;">
+            <div class="card-header">
+                <h2 class="card-title">📊 Relatório Executivo</h2>
+            </div>
+            <div class="card-body">
+                <div id="relatorio-content" class="report-content"></div>
+            </div>
+        </section>
+
+        <!-- Questions Section -->
+        <section id="questions-section" class="card questions-card" style="display:none;">
+            <div class="card-header">
+                <h2 class="card-title">💬 Perguntas Sugeridas</h2>
+                <p class="card-subtitle">Clique em uma pergunta para explorar mais</p>
+            </div>
+            <div class="card-body">
+                <div id="perguntas-sugeridas" class="questions-grid"></div>
+            </div>
+        </section>
+
+        <!-- Chat Section -->
+        <section id="chat-section" class="card chat-card" style="display:none;">
+            <div class="card-header">
+                <h2 class="card-title">💬 Chat Interativo</h2>
+                <p class="card-subtitle">Faça perguntas sobre os dados</p>
+            </div>
+            <div class="card-body">
+                <div id="chat-messages" class="chat-messages"></div>
+                <div class="chat-input-wrapper">
+                    <input type="text" id="chat-input" class="chat-input" placeholder="Faça uma pergunta sobre os extratos...">
+                    <button id="btn-enviar-chat" class="btn-chat">
+                        <span>Enviar</span>
+                        <span class="btn-icon">→</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Download Section -->
+        <section id="download-section" class="card download-card" style="display:none;">
+            <div class="card-body text-center">
+                <button id="btn-download" class="btn-download">
+                    <span class="btn-icon">📥</span>
+                    <span class="btn-text">Baixar Excel de Mudanças</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Extratos Corporate Banking v1.1 • 2026</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
