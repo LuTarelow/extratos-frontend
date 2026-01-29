@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function testarConexao() {
     try {
         console.log('🔍 Testando conexão com backend...');
-        const response = await fetch(`${API_BASE_URL}/`, {
+        const response = await fetch(`${API_BASE_URL}/health`', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
