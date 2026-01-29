@@ -3,7 +3,7 @@ const API_BASE_URL = (() => {
     // 1. Se estiver em produção (GitHub Pages), usa URL do Cloud Run
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
         // URL do Cloud Run no projeto dashboard-bv
-        return 'https://extratos-backend-497872684487.southamerica-east1.run.app';
+        return 'https://dashboard-bv-backend-497872684487.southamerica-east1.run.app/extratos';
     }
     // 2. Se estiver em desenvolvimento local, usa localhost
     return 'http://localhost:8000';
