@@ -1,12 +1,20 @@
-// API Base URL - CONFIGURADO PARA SEU BACKEND
-const API_BASE_URL = 'https://extratos-backend-222535452929.southamerica-east1.run.app';
+// URL do backend - detecta automaticamente
+const API_BASE_URL = (() => {
+    // 1. Se estiver em produção (GitHub Pages), usa URL do Cloud Run
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        // URL do Cloud Run
+        return 'https://extratos-backend-222535452929.southamerica-east1.run.app';
+    }
+    // 2. Se estiver em desenvolvimento local, usa localhost
+    return 'http://localhost:8000';
+})();
 
 let currentResultId = null;
 let isProcessing = false;
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
-    // Testar conexão ao carregar
+    console.log('✅ Frontend carregado - API:', API_BASE_URL);
     testarConexao();
     
     document.getElementById('btn-processar').addEventListener('click', processarExtratos);
@@ -30,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// CORRIGIDO: Testar conexão com backend usando /health
 async function testarConexao() {
     try {
         console.log('🔍 Testando conexão com backend...');
@@ -41,37 +48,10 @@ async function testarConexao() {
             console.log('✅ Backend conectado:', data);
         } else {
             console.error('❌ Backend retornou erro:', response.status);
-            mostrarErroConexao('Backend retornou erro ' + response.status);
         }
     } catch (error) {
-        console.error('❌ Erro ao conectar com backend:', error);
-        mostrarErroConexao(error.message);
+        console.error('❌ Erro ao conectar:', error.message);
     }
-}
-
-function mostrarErroConexao(mensagem) {
-    const alertDiv = document.createElement('div');
-    alertDiv.style.cssText = `
-        position: fixed;
-        top: 80px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #DC3545;
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        z-index: 1000;
-        max-width: 600px;
-    `;
-    alertDiv.innerHTML = `
-        <strong>⚠️ Problema de Conexão</strong><br>
-        ${mensagem}<br>
-        <small>Verifique sua conexão com a internet ou tente novamente mais tarde.</small>
-    `;
-    document.body.appendChild(alertDiv);
-    
-    setTimeout(() => alertDiv.remove(), 5000);
 }
 
 async function processarExtratos() {
@@ -136,31 +116,7 @@ async function processarExtratos() {
         
     } catch (error) {
         console.error('❌ Erro completo:', error);
-        
-        let mensagemErro = 'Erro ao processar extratos: ' + error.message;
-        
-        // Diagnóstico específico
-        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-            mensagemErro = `
-❌ Erro de Conexão com o Backend
-
-Possíveis causas:
-1. Você está sem internet
-2. O backend está fora do ar
-3. Firewall/Proxy bloqueando a requisição
-4. CORS não configurado corretamente
-
-🔧 Soluções:
-- Verifique sua conexão com internet
-- Aguarde alguns minutos e tente novamente
-- Abra o Console (F12) para ver detalhes
-- Entre em contato com o administrador do sistema
-
-Detalhes técnicos: ${error.message}
-            `;
-        }
-        
-        alert(mensagemErro);
+        alert('Erro ao processar extratos: ' + error.message);
     } finally {
         isProcessing = false;
         document.getElementById('loading').style.display = 'none';
