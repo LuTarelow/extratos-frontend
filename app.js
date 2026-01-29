@@ -2,8 +2,8 @@
 const API_BASE_URL = (() => {
     // 1. Se estiver em produção (GitHub Pages), usa URL do Cloud Run
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        // URL do Cloud Run
-        return 'https://extratos-backend-222535452929.southamerica-east1.run.app';
+        // URL do Cloud Run no projeto dashboard-bv
+        return 'https://extratos-backend-497872684487.southamerica-east1.run.app';
     }
     // 2. Se estiver em desenvolvimento local, usa localhost
     return 'http://localhost:8000';
@@ -12,7 +12,6 @@ const API_BASE_URL = (() => {
 let currentResultId = null;
 let isProcessing = false;
 
-// Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     console.log('✅ Frontend carregado - API:', API_BASE_URL);
     testarConexao();
@@ -89,7 +88,6 @@ async function processarExtratos() {
     document.getElementById('loading').style.display = 'flex';
     document.getElementById('btn-processar').disabled = true;
     document.getElementById('btn-processar').textContent = 'Processando...';
-    
     document.getElementById('loading').scrollIntoView({ behavior: 'smooth', block: 'center' });
     
     try {
@@ -109,7 +107,6 @@ async function processarExtratos() {
         
         const result = await response.json();
         currentResultId = result.result_id;
-        
         console.log('✅ Processamento concluído:', result);
         
         await carregarRelatorio();
@@ -153,7 +150,6 @@ async function carregarRelatorio() {
     
     document.getElementById('chat-section').style.display = 'block';
     document.getElementById('download-section').style.display = 'block';
-    
     document.getElementById('report-section').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -180,7 +176,6 @@ async function enviarPerguntaChat() {
     typingIndicator.className = 'chat-message chat-bot typing-indicator';
     typingIndicator.innerHTML = '<span class="typing-dots"><span>•</span><span>•</span><span>•</span></span>';
     messagesDiv.appendChild(typingIndicator);
-    
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
     
     isProcessing = true;
@@ -195,19 +190,15 @@ async function enviarPerguntaChat() {
             body: formData
         });
         
-        if (!response.ok) {
-            throw new Error(`Erro ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Erro ${response.status}`);
         
         const data = await response.json();
-        
         typingIndicator.remove();
         
         const botMsg = document.createElement('div');
         botMsg.className = 'chat-message chat-bot';
         botMsg.innerHTML = renderMarkdown(data.resposta);
         messagesDiv.appendChild(botMsg);
-        
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
         
     } catch (error) {
@@ -217,7 +208,6 @@ async function enviarPerguntaChat() {
         errorMsg.className = 'chat-message chat-error';
         errorMsg.textContent = '❌ Erro ao enviar pergunta: ' + error.message;
         messagesDiv.appendChild(errorMsg);
-        
         console.error('Erro completo:', error);
     } finally {
         isProcessing = false;
@@ -233,23 +223,16 @@ async function baixarExcel() {
 
 function renderMarkdown(text) {
     if (!text) return '';
-    
     let html = text;
-    
     html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
     html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
     html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-    
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    
     html = html.replace(/^• (.*$)/gim, '<li>$1</li>');
     html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-    
     html = html.replace(/\n\n/g, '</p><p>');
     html = '<p>' + html + '</p>';
-    
     html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
-    
     return html;
 }
