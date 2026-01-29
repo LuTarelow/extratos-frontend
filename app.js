@@ -1,11 +1,8 @@
-// URL do backend - detecta automaticamente
+// URL do backend
 const API_BASE_URL = (() => {
-    // 1. Se estiver em produção (GitHub Pages), usa URL do Cloud Run
     if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        // URL do Cloud Run no projeto dashboard-bv
         return 'https://dashboard-bv-backend-497872684487.southamerica-east1.run.app/extratos';
     }
-    // 2. Se estiver em desenvolvimento local, usa localhost
     return 'http://localhost:8000';
 })();
 
@@ -15,6 +12,9 @@ let isProcessing = false;
 document.addEventListener('DOMContentLoaded', () => {
     console.log('✅ Frontend carregado - API:', API_BASE_URL);
     testarConexao();
+    
+    // TENTAR CARREGAR DADOS SALVOS AUTOMATICAMENTE
+    tentarCarregarDadosSalvos();
     
     document.getElementById('btn-processar').addEventListener('click', processarExtratos);
     document.getElementById('btn-enviar-chat').addEventListener('click', enviarPerguntaChat);
@@ -39,17 +39,76 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function testarConexao() {
     try {
-        console.log('🔍 Testando conexão com backend...');
+        console.log('🔍 Testando conexão...');
         const response = await fetch(`${API_BASE_URL}/health`);
         
         if (response.ok) {
             const data = await response.json();
             console.log('✅ Backend conectado:', data);
-        } else {
-            console.error('❌ Backend retornou erro:', response.status);
         }
     } catch (error) {
         console.error('❌ Erro ao conectar:', error.message);
+    }
+}
+
+async function tentarCarregarDadosSalvos() {
+    try {
+        console.log('🔍 Verificando dados salvos...');
+        
+        // Verificar status
+        const statusResponse = await fetch(`${API_BASE_URL}/status`);
+        if (!statusResponse.ok) {
+            console.log('ℹ️ Nenhum dado salvo ainda');
+            return;
+        }
+        
+        const status = await statusResponse.json();
+        
+        if (status.data_loaded) {
+            console.log('📊 Dados salvos encontrados! Carregando...');
+            
+            // Mostrar loading
+            document.getElementById('loading').style.display = 'flex';
+            
+            // Carregar dados
+            const dataResponse = await fetch(`${API_BASE_URL}/data`);
+            const data = await dataResponse.json();
+            
+            currentResultId = data.result_id;
+            
+            // Carregar relatório
+            await carregarRelatorio();
+            
+            // Esconder loading
+            document.getElementById('loading').style.display = 'none';
+            
+            // Mostrar badge indicando dados carregados
+            mostrarBadgeDadosCarregados(status.label_a, status.label_b);
+            
+            console.log('✅ Dados salvos carregados automaticamente!');
+        } else {
+            console.log('ℹ️ Nenhum dado salvo disponível');
+        }
+        
+    } catch (error) {
+        console.log('ℹ️ Sem dados salvos ou erro ao carregar:', error.message);
+        document.getElementById('loading').style.display = 'none';
+    }
+}
+
+function mostrarBadgeDadosCarregados(labelA, labelB) {
+    // Adicionar indicador visual de que há dados carregados
+    const uploadSection = document.querySelector('.upload-section');
+    if (uploadSection) {
+        const badge = document.createElement('div');
+        badge.className = 'dados-carregados-badge';
+        badge.innerHTML = `
+            <div style="background: #28a745; color: white; padding: 0.5rem 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;">
+                ✅ Dados carregados: ${labelA} vs ${labelB}
+                <br><small>Role para baixo para ver o relatório ou faça novo upload</small>
+            </div>
+        `;
+        uploadSection.insertBefore(badge, uploadSection.firstChild);
     }
 }
 
@@ -68,7 +127,7 @@ async function processarExtratos() {
     }
     
     if (!labelA || !labelB) {
-        alert('Por favor, informe os labels YYYYMM para ambos os extratos.');
+        alert('Por favor, informe os labels YYYYMM.');
         return;
     }
     
@@ -91,14 +150,12 @@ async function processarExtratos() {
     document.getElementById('loading').scrollIntoView({ behavior: 'smooth', block: 'center' });
     
     try {
-        console.log('📤 Enviando requisição para:', `${API_BASE_URL}/v1/process`);
+        console.log('📤 Enviando requisição...');
         
         const response = await fetch(`${API_BASE_URL}/v1/process`, {
             method: 'POST',
             body: formData
         });
-        
-        console.log('📥 Resposta recebida:', response.status);
         
         if (!response.ok) {
             const error = await response.json().catch(() => ({ detail: `Erro ${response.status}` }));
@@ -107,13 +164,13 @@ async function processarExtratos() {
         
         const result = await response.json();
         currentResultId = result.result_id;
-        console.log('✅ Processamento concluído:', result);
+        console.log('✅ Processado:', result);
         
         await carregarRelatorio();
         
     } catch (error) {
-        console.error('❌ Erro completo:', error);
-        alert('Erro ao processar extratos: ' + error.message);
+        console.error('❌ Erro:', error);
+        alert('Erro ao processar: ' + error.message);
     } finally {
         isProcessing = false;
         document.getElementById('loading').style.display = 'none';
@@ -206,9 +263,8 @@ async function enviarPerguntaChat() {
         
         const errorMsg = document.createElement('div');
         errorMsg.className = 'chat-message chat-error';
-        errorMsg.textContent = '❌ Erro ao enviar pergunta: ' + error.message;
+        errorMsg.textContent = '❌ Erro: ' + error.message;
         messagesDiv.appendChild(errorMsg);
-        console.error('Erro completo:', error);
     } finally {
         isProcessing = false;
         input.disabled = false;
